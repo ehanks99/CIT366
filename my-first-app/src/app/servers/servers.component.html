@@ -13,11 +13,20 @@
     [disabled]="!allowNewServer"
     (click)="onCreateServer()">Add Server</button>
 <!--<p [innerText]="allowNewServer"></p>-->
-<p>{{ serverCreationStatus }}</p>
-<app-server></app-server>
-<app-server></app-server>
+<!--<p>{{ serverCreationStatus }}</p>-->
+<p *ngIf="serverCreated">Server was created, server name is {{ serverName }}</p>
+<app-server *ngFor="let server of servers"></app-server>
 
-
+<hr>
+<h2>Assignment 3</h2>
+<button
+    class="btn btn-primary"
+    (click)="onDisplayDetails()">Toggle Display</button>
+    <!--(click)="showSecret = !showSecret">Toggle Display</button>-->
+<p *ngIf="showSecret">Secret Paragraph. Shhhh! Don't tell anyone!</p>
+<p *ngFor="let logItem of log; let i = index"
+    [ngStyle]="{backgroundColor: i >= 4 ? 'blue' : 'transparent'}"
+    [ngClass]="{'white-text': i >= 4}"> {{ logItem }} </p>
 
 <hr>
 <h2>Assignment 2</h2>
