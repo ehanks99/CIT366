@@ -1,13 +1,13 @@
 <div class="panel panel-default">
     <div class="panel-heading clearfix">
-        <h2></h2> <br><!--contact.name-->
+        <h3>{{ contact?.name }}</h3> <br>
 
         <div class="row">
             <div class="col-md-8">
             <!--<div class="pull-left">-->
                 <img 
-                    src="" 
-                    alt="" 
+                    [src]="contact?.imagePath" 
+                    alt="{{contact?.name}}" 
                     class="img-responsive" 
                     style="max-height:50px">
             </div>
@@ -21,7 +21,7 @@
     </div>
 
     <div class="panel-body">
-        <p><strong>Email: </strong></p>
-        <p><strong>Phone: </strong></p>
+        <p><strong>Email: </strong>{{ contact?.email }}</p>
+        <p><strong>Phone: </strong>{{ contact?.phone }}</p>
     </div>
 </div>
