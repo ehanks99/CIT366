@@ -16,7 +16,7 @@ export class Contact {
     }*/
     // or could do it shorthand as follows
     constructor(
-        public id: string, 
+        public contactId: string, 
         public name: string, 
         public email: string, 
         public phone: string, 
