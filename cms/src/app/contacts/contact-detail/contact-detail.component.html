@@ -13,8 +13,8 @@
             </div>
             <div class="col-md-4 btn-toolbar">
             <!--<div class="pull-right btn-toolbar">-->
-                <a href="#" class="btn btn-danger pull-right">Delete</a>
-                <a href="#" class="btn btn-primary pull-right">Edit</a>
+                <a (click)="onDelete()" class="btn btn-danger pull-right">Delete</a>
+                <a [routerLink]="['edit']" class="btn btn-primary pull-right">Edit</a>
             </div>
         </div>
         <!--header title MUST go after the a tag or they will line up weird-->

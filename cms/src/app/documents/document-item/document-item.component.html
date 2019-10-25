@@ -1,5 +1,9 @@
-<a class="list-group-item clearfix documentDiv" style="cursor: pointer">
-    <!-- Display document name here -->
-    {{ document?.name }}
+<a 
+  [routerLink]="[document.documentId]" 
+  routerLinkActive="active"
+  class="list-group-item clearfix documentDiv" 
+  style="cursor: pointer">
+  <!-- Display document name here -->
+  {{ document?.name }}
 </a>
   
