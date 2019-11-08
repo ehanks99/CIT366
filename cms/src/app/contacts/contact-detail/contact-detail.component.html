@@ -25,7 +25,7 @@
     <p><strong>Phone: </strong>{{ contact?.phone }}</p>
 
     <p *ngIf="contact.group"><strong>Contacts in Team:</strong></p>
-    <div class="panel-body">
+    <div *ngIf="contact.group" class="panel-body">
       <cms-contact-item
         *ngFor="let groupContact of contact.group"
         [contact]="groupContact">
