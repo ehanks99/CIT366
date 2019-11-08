@@ -24,8 +24,8 @@
     <p><strong>Email: </strong>{{ contact?.email }}</p>
     <p><strong>Phone: </strong>{{ contact?.phone }}</p>
 
-    <p *ngIf="contact.group"><strong>Contacts in Team:</strong></p>
-    <div *ngIf="contact.group" class="panel-body">
+    <p *ngIf="contact.group && contact.group.length > 0"><strong>Contacts in Team:</strong></p>
+    <div *ngIf="contact.group && contact.group.length > 0" class="panel-body">
       <cms-contact-item
         *ngFor="let groupContact of contact.group"
         [contact]="groupContact">
