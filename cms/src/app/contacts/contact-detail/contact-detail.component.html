@@ -1,27 +1,36 @@
 <div class="panel panel-default">
-    <div class="panel-heading clearfix">
-        <h3>{{ contact?.name }}</h3> <br>
+  <div class="panel-heading clearfix">
+    <h3>{{ contact?.name }}</h3> <br>
 
-        <div class="row">
-            <div class="col-md-8">
-            <!--<div class="pull-left">-->
-                <img 
-                    [src]="contact?.imageUrl" 
-                    alt="{{contact?.name}}" 
-                    class="img-responsive" 
-                    style="max-height:50px">
-            </div>
-            <div class="col-md-4 btn-toolbar">
-            <!--<div class="pull-right btn-toolbar">-->
-                <a (click)="onDelete()" class="btn btn-danger pull-right">Delete</a>
-                <a [routerLink]="['edit']" class="btn btn-primary pull-right">Edit</a>
-            </div>
-        </div>
-        <!--header title MUST go after the a tag or they will line up weird-->
+    <div class="row">
+      <div class="col-md-8">
+      <!--<div class="pull-left">-->
+        <img 
+          [src]="contact?.imageUrl" 
+          alt="{{contact?.name}}" 
+          class="img-responsive" 
+          style="max-height:50px">
+      </div>
+      <div class="col-md-4 btn-toolbar">
+      <!--<div class="pull-right btn-toolbar">-->
+        <a (click)="onDelete()" class="btn btn-danger pull-right">Delete</a>
+        <a [routerLink]="['edit']" class="btn btn-primary pull-right">Edit</a>
+      </div>
     </div>
+    <!--header title MUST go after the a tag or they will line up weird-->
+  </div>
 
+  <div class="panel-body">
+    <p><strong>Email: </strong>{{ contact?.email }}</p>
+    <p><strong>Phone: </strong>{{ contact?.phone }}</p>
+
+    <p *ngIf="contact.group"><strong>Contacts in Team:</strong></p>
     <div class="panel-body">
-        <p><strong>Email: </strong>{{ contact?.email }}</p>
-        <p><strong>Phone: </strong>{{ contact?.phone }}</p>
+      <cms-contact-item
+        *ngFor="let groupContact of contact.group"
+        [contact]="groupContact">
+      </cms-contact-item>
     </div>
+
+  </div>
 </div>
