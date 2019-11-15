@@ -11,6 +11,8 @@ import { DocumentStartComponent } from './documents/document-start/document-star
 import { ContactStartComponent } from './contacts/contact-start/contact-start.component';
 import { ContactEditComponent } from './contacts/contact-edit/contact-edit.component';
 import { ContactDetailComponent } from './contacts/contact-detail/contact-detail.component';
+import { ContactsResolverService } from './contacts/contacts-resolver.service';
+import { DocumentsResolverService } from './documents/documents-resolver.service';
 
 // the const must be above the "@NgModule"
 const appRoutes: Routes = [
@@ -18,15 +20,16 @@ const appRoutes: Routes = [
   { path: 'documents', component: DocumentsComponent, children: [
     { path: '', component: DocumentStartComponent, pathMatch: 'full' },
     { path: 'new', component: DocumentEditComponent },
-    { path: ':id', component: DocumentDetailComponent },
-    { path: ':id/edit', component: DocumentEditComponent }
+    { path: ':id', component: DocumentDetailComponent, resolve: [DocumentsResolverService] },
+    { path: ':id/edit', component: DocumentEditComponent, resolve: [DocumentsResolverService] }
   ] },
-  { path: 'messages', component: MessageListComponent },
+  // messages needs the contact list, so let's make sure the contact list gets loaded if this url is selected
+  { path: 'messages', component: MessageListComponent, resolve: [ContactsResolverService] },
   { path: 'contacts', component: ContactsComponent, children: [
     { path: '', component: ContactStartComponent, pathMatch: 'full' },
     { path: 'new', component:  ContactEditComponent },
-    { path: ':id', component: ContactDetailComponent },
-    { path: ':id/edit', component: ContactEditComponent }
+    { path: ':id', component: ContactDetailComponent, resolve: [ContactsResolverService] },
+    { path: ':id/edit', component: ContactEditComponent, resolve: [ContactsResolverService] }
   ] }
 ]; 
 

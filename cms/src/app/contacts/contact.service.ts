@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { Contact } from './contact.model';
-import { MOCKCONTACTS } from './MOCKCONTACTS';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +13,40 @@ export class ContactService {
   private contacts: Contact[] = [];
   maxContactId: number;
 
-  constructor() {
-    this.contacts = MOCKCONTACTS;
-    this.maxContactId = this.getMaxId();
+  constructor(private http: HttpClient) {
+    // this.contacts = MOCKCONTACTS;
+    // this.maxContactId = this.getMaxId();
   }
 
   getContacts(): Contact[] {
     return this.contacts.slice();
+  }
+
+  fetchContacts() {
+    return this.http.get<Contact[]>("https://cms-project-73398.firebaseio.com/contacts.json")
+      .pipe(tap(contacts => {
+          this.contacts = contacts;
+        }
+      )
+    );
+  }
+
+  startFetchingContacts() {
+    this.http.get<Contact[]>("https://cms-project-73398.firebaseio.com/contacts.json")
+    .subscribe(
+      // success function
+      (contacts: Contact[]) => {
+        this.contacts = contacts;
+        this.maxContactId = this.getMaxId();
+
+        // emit the next contact list change event
+        this.contactListChangedEvent.next(this.contacts.slice());
+      },
+      // error function
+      (error: any) => {
+        console.log(error);
+      }
+    );
   }
 
   getContact(id: string): Contact {
@@ -42,10 +70,11 @@ export class ContactService {
     }
 
     this.contacts.splice(pos, 1);
-    this.contactListChangedEvent.next(this.contacts.slice());
+    // this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
   }
   
-  getMaxId(): number {
+  private getMaxId(): number {
     let maxId = 0;
 
     for (let contact of this.contacts) {
@@ -68,7 +97,8 @@ export class ContactService {
     newContact.contactId = (this.maxContactId).toString();
     this.contacts.push(newContact);
     
-    this.contactListChangedEvent.next(this.contacts.slice());
+    // this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
   }
 
   updateContact(originalContact: Contact, newContact: Contact) {
@@ -84,6 +114,19 @@ export class ContactService {
     newContact.contactId = originalContact.contactId;
     this.contacts[pos] = newContact;
     
-    this.contactListChangedEvent.next(this.contacts.slice());
+    // this.contactListChangedEvent.next(this.contacts.slice());
+    this.storeContacts();
+  }
+
+  storeContacts() {
+    const stringContacts = JSON.stringify(this.contacts);
+    let header = new HttpHeaders({'content-type': 'application/json'});
+    this.http.put(
+      "https://cms-project-73398.firebaseio.com/contacts.json",
+      stringContacts,
+      {headers: header}
+    ).subscribe(() => {
+      this.contactListChangedEvent.next(this.contacts.slice());
+    });
   }
 }
