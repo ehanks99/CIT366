@@ -104,6 +104,10 @@ function saveContact(res, contact) {
     .then(writeResult => {
       // success
       // getContacts(res); // the assignment did this, but it's technically not correct
+            // we want the new contact, if it has a group, to be populated correctly
+            // Contact.findOne({id: contactId})
+            //   .populate("group")
+            //   .then(result => )
       res.status(201).json({
         message: "Contact saved successfully",
         contact: contact
