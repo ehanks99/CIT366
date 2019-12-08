@@ -8,48 +8,41 @@ import { Document } from './document.model';
 @Injectable({
   providedIn: 'root'
 })
+
 export class DocumentService {
   documentListChangedEvent = new Subject<Document[]>();
   private documents: Document[] = [];
-  maxDocumentId: number;
 
-  constructor(private http: HttpClient) {
-    // this.documents = MOCKDOCUMENTS;
-    // this.maxDocumentId = this.getMaxId();
-  }
+  constructor(private http: HttpClient) { }
 
   getDocuments(): Document[] {
     return this.documents.slice();
   }
 
+  sortAndSend() {
+    this.documents.sort((a, b) => (a.name > b.name) ? 1 : ((b.name > a.name) ? -1 : 0));
+
+    // emit the next document list change event
+    this.documentListChangedEvent.next(this.documents.slice());
+  }
+  
   fetchDocuments() {
-    return this.http.get<Document[]>("https://cms-project-73398.firebaseio.com/documents.json")
-      .pipe(tap(documents => {
-          this.documents = documents;
+    return this.http.get<{ message: string, documents: Document[] }>("http://localhost:3000/api/documents")
+      .pipe(tap(documentInfo => {
+          this.documents = documentInfo.documents;
         }
       )
     );
   }
 
   startFetchingDocuments() {
-    this.http.get<Document[]>("https://cms-project-73398.firebaseio.com/documents.json")
+    this.http.get<{ message: string, documents: Document[] }>("http://localhost:3000/api/documents")
       .subscribe(
         // success function
-        (documents: Document[]) => {
-          this.documents = documents;
-          this.maxDocumentId = this.getMaxId();
-          this.documents.sort((a, b) => {
-            if (a.name > b.name) {
-              return 1;
-            } else if (a.name < b.name) {
-              return -1;
-            } else {
-              return 0;
-            }
-          });
+        (documentInfo) => {
+          this.documents = documentInfo.documents;
 
-          // emit the next document list change event
-          this.documentListChangedEvent.next(this.documents.slice());
+          this.sortAndSend();
         },
         // error function
         (error: any) => {
@@ -69,49 +62,51 @@ export class DocumentService {
   }
 
   deleteDocument(document: Document) {
-    if (document === null) {
+    if (!document) {
       return;
     }
 
-    const pos = this.documents.indexOf(document);
-    if (pos < 0) {
-      return;
-    }
-
-    this.documents.splice(pos, 1);
-    // this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments();
-  }
-
-  getMaxId(): number {
-    let maxId = 0;
-
-    for (let document of this.documents) {
-      let currentId = +document.documentId;
-
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    }
-
-    return maxId;
+    this.http.delete<{message: string}>("http://localhost:3000/api/documents/" + document.documentId)
+      .subscribe(
+        (returnInfo) => {
+          let pos = this.documents.indexOf(document);
+          this.documents.splice(pos, 1);
+          this.sortAndSend();
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 
   addDocument(newDocument: Document) {
-    if (newDocument === null) {
+    if (!newDocument) {
       return;
     }
 
-    this.maxDocumentId++;
-    newDocument.documentId = (this.maxDocumentId).toString();
-    this.documents.push(newDocument);
-    
-    // this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments();
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+
+    // make sure id of the new document has something (empty string)
+    newDocument.documentId = "";
+    const strDocument = JSON.stringify(newDocument);
+
+    this.http.post<{message: string, document: Document}>("http://localhost:3000/api/documents", strDocument, {headers: headers})
+      .subscribe(
+        (documentInfo) => {
+          // we want to use the returned document because it has the correct "id" field filled in (from the database)
+          this.documents.push(documentInfo.document);
+          this.sortAndSend();
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 
   updateDocument(originalDocument: Document, newDocument: Document) {
-    if (originalDocument === null || newDocument === null) {
+    if (!originalDocument || !newDocument) {
       return;
     }
 
@@ -120,22 +115,30 @@ export class DocumentService {
       return;
     }
 
-    newDocument.documentId = originalDocument.documentId;
-    this.documents[pos] = newDocument;
-    
-    // this.documentListChangedEvent.next(this.documents.slice());
-    this.storeDocuments();
-  }
+    // // set the id of the new document to the id of the old document
+    // newDocument.documentId = originalDocument.documentId;
+    // newDocument._id = originalDocument._id;
 
-  storeDocuments() {
-    const stringDocuments = JSON.stringify(this.documents);
-    let header = new HttpHeaders({'content-type': 'application/json'});
-    this.http.put(
-      "https://cms-project-73398.firebaseio.com/documents.json",
-      stringDocuments,
-      {headers: header}
-    ).subscribe(() => {
-      this.documentListChangedEvent.next(this.documents.slice());
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
     });
+
+    newDocument.documentId = originalDocument.documentId;
+    const strDocument = JSON.stringify(newDocument);
+
+    this.http.put<{ message: string, document: Document }>("http://localhost:3000/api/documents/" + originalDocument.documentId,
+                    strDocument,
+                    {headers: headers})
+      .subscribe(
+        (documentInfo) => {
+          // don't need to use the returned document here because we already have the id saved from
+          // the original document, but it's fine if we do use it
+          this.documents[pos] = documentInfo.document;
+          this.sortAndSend();
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 }

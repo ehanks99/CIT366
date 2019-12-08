@@ -9,19 +9,15 @@ import { Message } from './message.model';
 export class MessageService {
   messageChangeEvent = new EventEmitter<Message[]>();
   messages: Message[] = [];
-  maxMessageId: number;
 
-  constructor(private http: HttpClient) {
-    // this.messages = MOCKMESSAGES;
-  }
+  constructor(private http: HttpClient) { }
 
   initMessages() {
-    this.http.get<Message[]>("https://cms-project-73398.firebaseio.com/messages.json")
+    this.http.get<{message: String, messages: Message[]}>("http://localhost:3000/api/messages")
     .subscribe(
       // success function
-      (messages: Message[]) => {
-        this.messages = messages;
-        this.maxMessageId = this.getMaxId();
+      (messageInfo) => {
+        this.messages = messageInfo.messages;
 
         // // emit the next message list change event
         this.messageChangeEvent.next(this.messages.slice());
@@ -48,34 +44,27 @@ export class MessageService {
   }
 
   addMessage(message: Message) {
-    this.messages.push(message);
-    // this.messageChangeEvent.emit(this.messages.slice());
-    this.storeMessages();
-  }
-
-  storeMessages() {
-    const stringMessages = JSON.stringify(this.messages);
-    let header = new HttpHeaders({'content-type': 'application/json'});
-    this.http.put(
-      "https://cms-project-73398.firebaseio.com/messages.json",
-      stringMessages,
-      {headers: header}
-    ).subscribe(() => {
-      this.messageChangeEvent.next(this.messages.slice());
-    });
-  }
-
-  private getMaxId(): number {
-    let maxId = 0;
-
-    for (let message of this.messages) {
-      let currentId = +message.messageId;
-
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
+    if (!message) {
+      return;
     }
 
-    return maxId;
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+
+    message.messageId = "";
+    const strMessage = JSON.stringify(message);
+
+    this.http.post<{title: string, message: Message}>("http://localhost:3000/api/messages", strMessage, {headers: headers})
+      .subscribe(
+        (messageInfo) => {
+          // we want to use the returned message because it has the correct "id" field filled in (from the database)
+          this.messages.push(messageInfo.message);
+          this.messageChangeEvent.next(this.messages.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 }

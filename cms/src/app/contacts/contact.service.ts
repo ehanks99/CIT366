@@ -11,35 +11,29 @@ import { Contact } from './contact.model';
 export class ContactService {
   contactListChangedEvent = new Subject<Contact[]>();
   private contacts: Contact[] = [];
-  maxContactId: number;
 
-  constructor(private http: HttpClient) {
-    // this.contacts = MOCKCONTACTS;
-    // this.maxContactId = this.getMaxId();
-  }
+  constructor(private http: HttpClient) { }
 
   getContacts(): Contact[] {
     return this.contacts.slice();
   }
 
   fetchContacts() {
-    return this.http.get<Contact[]>("https://cms-project-73398.firebaseio.com/contacts.json")
-      .pipe(tap(contacts => {
-          this.contacts = contacts;
+    return this.http.get<{message: String, contacts: Contact[]}>("http://localhost:3000/api/contacts")
+      .pipe(tap(contactInfo => {
+          this.contacts = contactInfo.contacts;
         }
       )
     );
   }
 
   startFetchingContacts() {
-    this.http.get<Contact[]>("https://cms-project-73398.firebaseio.com/contacts.json")
+    this.http.get("http://localhost:3000/api/contacts")
     .subscribe(
       // success function
-      (contacts: Contact[]) => {
-        this.contacts = contacts;
-        this.maxContactId = this.getMaxId();
+      (returnInfo: {message: String, contacts: Contact[]}) => {
+        this.contacts = returnInfo.contacts;
 
-        // emit the next contact list change event
         this.contactListChangedEvent.next(this.contacts.slice());
       },
       // error function
@@ -60,49 +54,50 @@ export class ContactService {
   }
 
   deleteContact(contact: Contact) {
-    if (contact === null) {
+    if (!contact) {
       return;
     }
-
-    const pos = this.contacts.indexOf(contact);
-    if (pos < 0) {
-      return;
-    }
-
-    this.contacts.splice(pos, 1);
-    // this.contactListChangedEvent.next(this.contacts.slice());
-    this.storeContacts();
-  }
-  
-  private getMaxId(): number {
-    let maxId = 0;
-
-    for (let contact of this.contacts) {
-      let currentId = +contact.contactId;
-
-      if (currentId > maxId) {
-        maxId = currentId;
-      }
-    }
-
-    return maxId;
+    
+    this.http.delete<{message: string}>("http://localhost:3000/api/contacts/" + contact.contactId)
+    .subscribe(
+      (returnInfo) => {
+          let pos = this.contacts.indexOf(contact);
+          this.contacts.splice(pos, 1);
+          this.contactListChangedEvent.next(this.contacts.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 
   addContact(newContact: Contact) {
-    if (newContact === null) {
+    if (!newContact) {
       return;
     }
 
-    this.maxContactId++;
-    newContact.contactId = (this.maxContactId).toString();
-    this.contacts.push(newContact);
-    
-    // this.contactListChangedEvent.next(this.contacts.slice());
-    this.storeContacts();
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+
+    newContact.contactId = "";
+    const strContact = JSON.stringify(newContact);
+
+    this.http.post<{message: string, contact: Contact}>("http://localhost:3000/api/contacts", strContact, {headers: headers})
+      .subscribe(
+        (contactInfo) => {
+          // we want to use the returned contact because it has the correct "id" field filled in (from the database)
+          this.contacts.push(contactInfo.contact);
+          this.contactListChangedEvent.next(this.contacts.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 
   updateContact(originalContact: Contact, newContact: Contact) {
-    if (originalContact === null || newContact === null) {
+    if (!originalContact || !newContact) {
       return;
     }
 
@@ -110,23 +105,27 @@ export class ContactService {
     if (pos < 0) {
       return;
     }
+    
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
 
     newContact.contactId = originalContact.contactId;
-    this.contacts[pos] = newContact;
-    
-    // this.contactListChangedEvent.next(this.contacts.slice());
-    this.storeContacts();
-  }
+    const strContact = JSON.stringify(newContact);
 
-  storeContacts() {
-    const stringContacts = JSON.stringify(this.contacts);
-    let header = new HttpHeaders({'content-type': 'application/json'});
-    this.http.put(
-      "https://cms-project-73398.firebaseio.com/contacts.json",
-      stringContacts,
-      {headers: header}
-    ).subscribe(() => {
-      this.contactListChangedEvent.next(this.contacts.slice());
-    });
+    this.http.put<{message: string, contact: Contact}>("http://localhost:3000/api/contacts/" + originalContact.contactId,
+                    strContact,
+                    {headers: headers})
+      .subscribe(
+        (contactInfo) => {
+          // don't need to use the returned contact here because we already have the id saved from
+          // the original contact, but that's fine if we do use it
+          this.contacts[pos] = contactInfo.contact;
+          this.contactListChangedEvent.next(this.contacts.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 }
