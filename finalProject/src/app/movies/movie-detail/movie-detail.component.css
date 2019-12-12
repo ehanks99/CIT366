@@ -1,0 +1,12 @@
+.main-picture
+{
+   height: 300px; 
+   width: auto; 
+   margin-left: 25px; 
+   margin-right: 25px;
+}
+
+.background
+{
+   background-color: #f0f0f0;
+}
