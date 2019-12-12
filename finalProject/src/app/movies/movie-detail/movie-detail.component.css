@@ -10,3 +10,9 @@
 {
    background-color: #f0f0f0;
 }
+
+.divider{
+   width:5px;
+   height:auto;
+   display:inline-block;
+}

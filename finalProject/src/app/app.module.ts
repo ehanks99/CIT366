@@ -10,6 +10,7 @@ import { MovieListComponent } from './movies/movie-list/movie-list.component';
 import { MovieItemComponent } from './movies/movie-item/movie-item.component';
 import { MovieDetailComponent } from './movies/movie-detail/movie-detail.component';
 import { MoviesFilterPipe } from './movies/movies-filter.pipe';
+import { MovieEditComponent } from './movies/movie-edit/movie-edit.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { MoviesFilterPipe } from './movies/movies-filter.pipe';
     MovieListComponent,
     MovieItemComponent,
     MovieDetailComponent,
-    MoviesFilterPipe
+    MoviesFilterPipe,
+    MovieEditComponent
   ],
   imports: [
     BrowserModule,

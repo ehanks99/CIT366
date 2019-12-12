@@ -3,8 +3,10 @@
   height: 190px;
   background-color: #f0f0f0;
   
-  overflow: visible;
-  white-space:nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  /* -webkit-overflow-scrolling: touch; */
 }
 
 #carousel .slide {

@@ -24,11 +24,11 @@ export class MovieService {
       "11",
       "https://is3-ssl.mzstatic.com/image/thumb/Video123/v4/89/d2/a0/89d2a0d4-6d57-fbc6-544f-b51f92ffdb7a/pr_source.jpg/268x0w.jpg",
       "Jurassic Park", 
-      "asdfasdf", 
+      "In Steven Spielberg's massive blockbuster, paleontologists Alan Grant (Sam Neill) and Ellie Sattler (Laura Dern) and mathematician Ian Malcolm (Jeff Goldblum) are among a select group chosen to tour an island theme park populated by dinosaurs created from prehistoric DNA. While the park's mastermind, billionaire John Hammond (Richard Attenborough), assures everyone that the facility is safe, they find out otherwise when various ferocious predators break free and go on the hunt.", 
       "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
+      ["Steven Spielberg"], 
+      ["Michael Chricton", "David Koepp"], 
+      ["Action", "Horror", "asdf", "qwert"]
     ),
     new Movie(
       "12",
@@ -60,27 +60,27 @@ export class MovieService {
       ["Jack"], 
       ["Action", "Comedy"]
     )
-    // ,
-    // new Movie(
-    //   "15",
-    //   "https://upload.wikimedia.org/wikipedia/en/thumb/6/68/The_mummy.jpg/220px-The_mummy.jpg",
-    //   "The Mummy", 
-    //   "asdfasdf", 
-    //   "PG", 
-    //   ["Angelina Jolie"], 
-    //   ["Jack"], 
-    //   ["Action", "Comedy"]
-    // ),
-    // new Movie(
-    //   "16",
-    //   "https://m.media-amazon.com/images/M/MV5BN2EyZjM3NzUtNWUzMi00MTgxLWI0NTctMzY4M2VlOTdjZWRiXkEyXkFqcGdeQXVyNDUzOTQ5MjY@._V1_.jpg",
-    //   "The Lord of the Rings: Fellowship of the Rings", 
-    //   "asdfasdf", 
-    //   "PG", 
-    //   ["Angelina Jolie"], 
-    //   ["Jack"], 
-    //   ["Action", "Comedy"]
-    // )
+    ,
+    new Movie(
+      "15",
+      "https://upload.wikimedia.org/wikipedia/en/thumb/6/68/The_mummy.jpg/220px-The_mummy.jpg",
+      "The Mummy", 
+      "asdfasdf", 
+      "PG", 
+      ["Angelina Jolie"], 
+      ["Jack"], 
+      ["Action", "Comedy"]
+    ),
+    new Movie(
+      "16",
+      "https://m.media-amazon.com/images/M/MV5BN2EyZjM3NzUtNWUzMi00MTgxLWI0NTctMzY4M2VlOTdjZWRiXkEyXkFqcGdeQXVyNDUzOTQ5MjY@._V1_.jpg",
+      "The Lord of the Rings: Fellowship of the Rings", 
+      "asdfasdf", 
+      "PG", 
+      ["Angelina Jolie"], 
+      ["Jack"], 
+      ["Action", "Comedy"]
+    )
   ];
 
   constructor() { }

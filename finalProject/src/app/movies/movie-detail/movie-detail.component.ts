@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Params } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { Movie } from '../movie.model';
 import { MovieService } from '../movie.service';
@@ -13,7 +13,8 @@ export class MovieDetailComponent implements OnInit {
   movie: Movie;
 
   constructor(private movieService: MovieService,
-              private route: ActivatedRoute) { }
+              private route: ActivatedRoute,
+              private router: Router) { }
 
   ngOnInit() {
     this.route.params.subscribe(
@@ -23,4 +24,9 @@ export class MovieDetailComponent implements OnInit {
     )
   }
 
+  onDelete() {
+  //   this.movieService.deleteMovie(this.movie);
+
+  //   this.router.navigate(["/movies"]);
+  }
 }
