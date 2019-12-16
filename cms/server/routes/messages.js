@@ -53,7 +53,7 @@ router.delete('/:id', function(req, res, next) {
       });
     }
     if (!message) {
-      return Response.status(500).json({
+      return res.status(500).json({
         title: "No Message Found",
         error: {messageId: req.params.id}
       });

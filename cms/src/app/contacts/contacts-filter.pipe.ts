@@ -19,7 +19,6 @@ export class ContactsFilterPipe implements PipeTransform {
     );
 
     if (filteredArray.length < 1) {
-      console.log("empty");
       return contacts;
     }
 

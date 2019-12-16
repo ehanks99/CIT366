@@ -57,7 +57,7 @@ router.delete('/:id', function(req, res, next) {
       });
     }
     if (!contact) {
-      return Response.status(500).json({
+      return res.status(500).json({
         title: "No Contact Found",
         error: {contactId: req.params.id}
       });
