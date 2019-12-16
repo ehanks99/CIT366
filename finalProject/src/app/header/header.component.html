@@ -1,11 +1,11 @@
 <div class="myNavbar">
-  <a>Home Page</a>
-  <a>Sign In</a>
+  <li routerLinkActive="active" style="display:block"><a routerLink="/movies">Movies</a></li>
+  <!-- <a>Sign In</a> -->
 
-  <div class="search-container">
-    <form id="navbarSearch">
-      <input type="text" placeholder="Search..." name="search" id="search">
-      <button type="submit" id="navbarSubmit"><i class="fa fa-search"></i></button>
-    </form>
-  </div>
+      <div class="input-group pull-right col-md-3">
+        <input type="text" 
+          class="form-control" 
+          placeholder="Search...">
+        <div class="glyphicon glyphicon glyphicon-search input-group-addon" (click)="search(searchBox.value)"></div>
+      </div>
 </div>
