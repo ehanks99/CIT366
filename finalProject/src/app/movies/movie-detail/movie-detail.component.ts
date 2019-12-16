@@ -25,8 +25,8 @@ export class MovieDetailComponent implements OnInit {
   }
 
   onDelete() {
-  //   this.movieService.deleteMovie(this.movie);
+    this.movieService.deleteMovie(this.movie);
 
-  //   this.router.navigate(["/movies"]);
+    this.router.navigate(["/movies"]);
   }
 }

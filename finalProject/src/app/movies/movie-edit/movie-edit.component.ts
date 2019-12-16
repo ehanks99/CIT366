@@ -14,8 +14,8 @@ export class MovieEditComponent implements OnInit {
   @ViewChild('form', { static: false }) movieForm: NgForm;
   genres: string[] = 
     [ "Action", "Adventure", "Comedy", "Crime", "Drama", "Fantasy", /* 6 */
-      "Historical", "Horror", "Mystery", "Philosophical", /* 4 */
-      "Political", "Romance", "Saga", "Satire", "Science fiction", "Social", /* 6 */
+      "Historical", "Horror", "Kids", "Mystery", /* 4 */
+      "Political", "Romance", "Satire", "Science Fiction", "Social", "Suspense", /* 6 */
       "Thriller", "Urban", "Western", "Animation" ]; /* 4 */
   // the array determining if genre checkbox is checked or not
   checked: boolean[] = [false, false, false, false, false, 
@@ -38,6 +38,9 @@ export class MovieEditComponent implements OnInit {
         
         if (!id) {
           this.editMode = false;
+          
+          // create an empty slate for the movie (have it set "G" as the default rating)
+          this.movie = new Movie("", "", "", "", "G", [], [], []);
           return;
         }
         
@@ -60,44 +63,50 @@ export class MovieEditComponent implements OnInit {
 
   onSubmit() {
     const values = this.movieForm.value;
-    console.log(values);
 
-    let selectedGenres: string[] = [];
     // need to find which genres were selected
+    let selectedGenres: string[] = [];
     for (let index in this.checked) {
       if (this.checked[index]) {
         selectedGenres.push(this.genres[index]);
       }
     }
-    // console.log(selectedGenres);
     
     // need to copy the separate values of the actors into the actor array
+    let actors: string[] = [];
     for (let index in this.movie.actors) {
       let string = "actors[" + index + "]";
-      this.movie.actors[index] = values[string];
+      // this.movie.actors[index] = values[string];
+      actors.push(values[string]);
     }
 
     // need to copy the separate values of the directors into the director array
+    let directors: string[] = [];
     for (let index in this.movie.directors) {
       let string = "directors[" + index + "]";
-      this.movie.directors[index] = values[string];
+      // this.movie.directors[index] = values[string];
+      directors.push(values[string]);
     }
 
-    // need to copy the separate values of the genres into the genre array
-    for (let index in this.movie.genres) {
-      let string = "genres[" + index + "]";
-      this.movie.genres[index] = values[string];
+    // create the movie
+    const newMovie = new Movie(
+      "",
+      values.imageUrl,
+      values.name,
+      values.summary,
+      values.rating,
+      actors,
+      directors,
+      selectedGenres
+    );
+
+    if (this.editMode === true) {
+      this.movieService.updateMovie(this.originalMovie, newMovie);
+    } else {
+      this.movieService.addMovie(newMovie);
     }
 
-    // const newContact = new Contact('', values.name, values.email, values.phone, values.imageUrl, this.groupContacts);
-
-    // if (this.editMode === true) {
-    //   this.contactService.updateContact(this.originalContact, newContact);
-    // } else {
-    //   this.contactService.addContact(newContact);
-    // }
-
-    // this.onCancel();
+    this.onCancel();
   }
 
   onCancel() {

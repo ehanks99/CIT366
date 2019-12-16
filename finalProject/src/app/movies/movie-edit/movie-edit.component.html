@@ -9,7 +9,7 @@
               type="text" 
               id="name"
               name="name"
-              class="form-control"
+              class="form-control required"
               [ngModel]="movie?.name"
               required
               #name="ngModel">
@@ -24,7 +24,7 @@
               type="text" 
               id="imageUrl"
               name="imageUrl"
-              class="form-control"
+              class="form-control required"
               [ngModel]="movie?.imageUrl"
               required
               #imageUrl="ngModel">
@@ -45,7 +45,7 @@
               type="text" 
               id="summary"
               name="summary"
-              class="form-control"
+              class="form-control required"
               rows="6"
               [ngModel]="movie?.summary"
               required

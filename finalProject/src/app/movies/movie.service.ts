@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 import { Movie } from './movie.model';
 
@@ -9,84 +10,24 @@ import { Movie } from './movie.model';
 })
 export class MovieService {
   movieListChangedEvent = new Subject<Movie[]>();
-  private movies: Movie[] = [
-    new Movie(
-      "10",
-      "https://m.media-amazon.com/images/M/MV5BODJkZTZhMWItMDI3Yy00ZWZlLTk4NjQtOTI1ZjU5NjBjZTVjXkEyXkFqcGdeQXVyODE5NzE3OTE@._V1_.jpg", 
-      "Kung Fu Panda", 
-      "Po might just be the laziest, clumsiest panda in the Valley of Peace, but he secretly dreams of becoming a kung fu legend. When the villainous snow leopard Tai Lung threatens Po's homeland, the hapless panda is chosen to fulfil an ancient prophecy and defend the Valley from attack. Training under Master Shifu, Po embarks on an epic high-kicking adventure as he sets out to thwart Tai Lung's evil plans. A DreamWorks animation.", 
-      "PG", 
-      ["Jack Black", "Dustin Hoffman", "Angelina Jolie"], 
-      ["Mark Osborne", "John Stevenson"], 
-      ["Action", "Comedy"]
-    ),
-    new Movie(
-      "11",
-      "https://is3-ssl.mzstatic.com/image/thumb/Video123/v4/89/d2/a0/89d2a0d4-6d57-fbc6-544f-b51f92ffdb7a/pr_source.jpg/268x0w.jpg",
-      "Jurassic Park", 
-      "In Steven Spielberg's massive blockbuster, paleontologists Alan Grant (Sam Neill) and Ellie Sattler (Laura Dern) and mathematician Ian Malcolm (Jeff Goldblum) are among a select group chosen to tour an island theme park populated by dinosaurs created from prehistoric DNA. While the park's mastermind, billionaire John Hammond (Richard Attenborough), assures everyone that the facility is safe, they find out otherwise when various ferocious predators break free and go on the hunt.", 
-      "PG", 
-      ["Steven Spielberg"], 
-      ["Michael Chricton", "David Koepp"], 
-      ["Action", "Horror", "asdf", "qwert"]
-    ),
-    new Movie(
-      "12",
-      "https://images-na.ssl-images-amazon.com/images/I/81bEk4cFbHL._SY445_.jpg",
-      "Jurassic World", 
-      "asdfasdf", 
-      "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
-    ),
-    new Movie(
-      "13",
-      "https://resizing.flixster.com/HvdEe1T_ga0MDjKBTth0FilcTYw%3D/206x305/v1.bTsxMTE3MDI2MTtqOzE4MzU0OzEyMDA7ODAwOzEyMDA",
-      "Rise of the Guardians", 
-      "asdfasdf", 
-      "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
-    ),
-    new Movie(
-      "14",
-      "https://m.media-amazon.com/images/M/MV5BMTk2NzczOTgxNF5BMl5BanBnXkFtZTcwODQ5ODczOQ@@._V1_.jpg",
-      "Star Trek: Into Darkness", 
-      "asdfasdf", 
-      "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
-    )
-    ,
-    new Movie(
-      "15",
-      "https://upload.wikimedia.org/wikipedia/en/thumb/6/68/The_mummy.jpg/220px-The_mummy.jpg",
-      "The Mummy", 
-      "asdfasdf", 
-      "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
-    ),
-    new Movie(
-      "16",
-      "https://m.media-amazon.com/images/M/MV5BN2EyZjM3NzUtNWUzMi00MTgxLWI0NTctMzY4M2VlOTdjZWRiXkEyXkFqcGdeQXVyNDUzOTQ5MjY@._V1_.jpg",
-      "The Lord of the Rings: Fellowship of the Rings", 
-      "asdfasdf", 
-      "PG", 
-      ["Angelina Jolie"], 
-      ["Jack"], 
-      ["Action", "Comedy"]
-    )
-  ];
+  private movies: Movie[] = [];
 
-  constructor() { }
+  constructor(private http: HttpClient) { }
 
-  getMovies(): Movie[] {
-    return this.movies.slice();
+  getMovies() {
+    this.http.get("http://localhost:3000/api/movies")
+    .subscribe(
+      // success function
+      (returnInfo: {message: String, movies: Movie[]}) => {
+        this.movies = returnInfo.movies;
+
+        this.movieListChangedEvent.next(this.movies.slice());
+      },
+      // error function
+      (error: any) => {
+        console.log(error);
+      }
+    );
   }
 
   getMovie(id: string): Movie {
@@ -97,5 +38,90 @@ export class MovieService {
     }
 
     return null;
+  }
+
+  fetchingMovies() {
+    return this.http.get<{message: String, movies: Movie[]}>("http://localhost:3000/api/movies")
+      .pipe(tap(movieInfo => {
+          this.movies = movieInfo.movies;
+        }
+      )
+    );
+  }
+
+  deleteMovie(movie: Movie) {
+    if (!movie) {
+      return;
+    }
+    
+    this.http.delete<{message: string}>("http://localhost:3000/api/movies/" + movie.movieId)
+    .subscribe(
+      (returnInfo) => {
+          let pos = this.movies.indexOf(movie);
+          this.movies.splice(pos, 1);
+          this.movieListChangedEvent.next(this.movies.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+  }
+
+  addMovie(newMovie: Movie) {
+    if (!newMovie) {
+      return;
+    }
+
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+
+    newMovie.movieId = "";
+    const strMovie = JSON.stringify(newMovie);
+
+    this.http.post<{message: string, movie: Movie}>("http://localhost:3000/api/movies", strMovie, {headers: headers})
+      .subscribe(
+        (movieInfo) => {
+          // we want to use the returned movie because it has the correct "id" field filled in (from the database)
+          this.movies.push(movieInfo.movie);
+          this.movieListChangedEvent.next(this.movies.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
+  }
+
+  updateMovie(originalMovie: Movie, newMovie: Movie) {
+    if (!originalMovie || !newMovie) {
+      return;
+    }
+
+    let pos = this.movies.indexOf(originalMovie);
+    if (pos < 0) {
+      return;
+    }
+    
+    const headers = new HttpHeaders({
+      "Content-Type": "application/json"
+    });
+
+    newMovie.movieId = originalMovie.movieId;
+    const strMovie = JSON.stringify(newMovie);
+
+    this.http.put<{message: string, movie: Movie}>("http://localhost:3000/api/movies/" + originalMovie.movieId,
+                    strMovie,
+                    {headers: headers})
+      .subscribe(
+        (movieInfo) => {
+          // don't need to use the returned movie here because we already have the id saved from
+          // the original movie, but it's fine if we do use it
+          this.movies[pos] = movieInfo.movie;
+          this.movieListChangedEvent.next(this.movies.slice());
+        },
+        (error: any) => {
+          console.log(error);
+        }
+      );
   }
 }
